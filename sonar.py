@@ -62,6 +62,7 @@ def genNewBoard():
             else:
                 board[x].append('`')
     return board
+    
 def genNewChests(numChests):
     chests = []
     while len(chests) < numChests:
