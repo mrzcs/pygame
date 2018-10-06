@@ -1,5 +1,5 @@
 import random
-import os
+import sys
 import math
 
 def showInstrunctions():
@@ -28,9 +28,7 @@ def showInstrunctions():
 
  Press enter to continue...''')
     input()
-    print('''When you drop a sonar device directly on a chest, you retrieve it and the other 
-    sonar devices update to show how far away the next nearest chest is. The chests 
-    are beyond the range of the sonar device on the left, so it shows an X.
+    print('''When you drop a sonar device directly on a chest, you retrieve it and the other sonar devices update to show how far away the next nearest chest is. The chests are beyond the range of the sonar device on the left, so it shows an X.
 
                      1         2         3
            012345678901234567890123456789012
@@ -62,7 +60,7 @@ def genNewBoard():
             else:
                 board[x].append('`')
     return board
-    
+
 def genNewChests(numChests):
     chests = []
     while len(chests) < numChests:
@@ -172,7 +170,7 @@ while True:
         if len(theChests) == 0:
             print('You have found all  the sunken treaure chests! Congras')
             break
-    
+
         sonarDevices -= 1
 
     if sonarDevices == 0:
@@ -181,7 +179,7 @@ while True:
         print('  The remaining chests were here:')
         for x, y in theChests:
             print('  %s, %s' % (x, y))
-        
+
     print('Do you want to play again?(yes or no)')
     if not input().lower().startswith('y'):
         sys.exit()
