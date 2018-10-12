@@ -1,9 +1,10 @@
 #reversegam.py
 import random
 import sys
+import time
 
-WIDTH = 8
-HEIGHT = 8
+WIDTH = 19
+HEIGHT = 19
 
 def enterPlayerTile():
     tile = ''
@@ -15,6 +16,7 @@ def enterPlayerTile():
         return ['X', 'O']
     else:
         return ['O', 'X']
+
 def whoGoesFirst():
     if random.randint(0, 1) == 0:
         return 'computer'
@@ -24,21 +26,22 @@ def whoGoesFirst():
 def getNewBoard():
     board = []
     for i in range(WIDTH):
-        board.append([' ']*8)
+        board.append([' '] * WIDTH)
         #board.append([' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '])
     return board
 
 def drawBoard(board):
-    print('  12345678')
-    print(' +--------+')
+    #print('  123456789012345')
+    print('+' + '-'*WIDTH +'+')
+    #print(' +--------+')
     for y in range(HEIGHT):
-        print('%s|' % (y+1), end='')
+        print('|', end='')
         for x in range(WIDTH):
             print(board[x][y], end='')
-        print('|%s' % (y+1))
+        print('|')
 
-    print(' +--------+')
-    print('  12345678')
+    print('+' + '-'*WIDTH +'+')
+    #print('  123456789012345')
 
 def getBoardCopy(board):
     boardCopy = getNewBoard()
@@ -64,7 +67,12 @@ def printScore(board, playerTile, computerTile):
     print('You: %s points. Computer: %s points' % (scores[playerTile], scores[computerTile]))
 
 def getPlayerMove(board, playerTile):
-    DIGITS1TO8 = '1 2 3 4 5 6 7 8'.split()
+    temp = []
+    for i in range(WIDTH):
+        temp.append(i)
+    #DIGITS1TO8 = '1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20'.split()
+    DIGITS1TO8 = temp.remove(0)
+    print(DIGITS1TO8)
     while True:
         print('Enter your move, "quit" to end the game, or "hints" to goggle hints')
         move = input().lower()
@@ -166,15 +174,17 @@ def getBoardWithValidMoves(board, tile):
     return boardCopy
 
 def playGame(playerTile, computerTile):
-    showHints = False
+    #showHints = False
     turn = whoGoesFirst()
     print('The %s will go first.' % (turn))
 
     board = getNewBoard()
-    board[3][3] = 'X'
-    board[3][4] = 'O'
-    board[4][3] = 'O'
-    board[4][4] = 'X'
+    xcenter  = int(WIDTH/2)
+    ycenter = int(HEIGHT/2)
+    board[xcenter-1][ycenter-1] = 'X'
+    board[xcenter-1][ycenter] = 'O'
+    board[xcenter][ycenter-1] = 'O'
+    board[xcenter][ycenter] = 'X'
 
     while True:
         playerValidMoves = getValidMoves(board, playerTile)
@@ -185,34 +195,23 @@ def playGame(playerTile, computerTile):
             return board # No one can move, so end the game.
         elif turn == 'player':
             if playerValidMoves != []:
-                if showHints:
-                    validMovesBoard = getBoardWithValidMoves(board, playerTile)
-                    drawBoard(validMovesBoard)
-                    #print('hint')
-                else:
-                    drawBoard(board)
-                printScore(board, playerTile, computerTile)
+                #drawBoard(board)
+                #printScore(board, playerTile, computerTile)
 
-                move = getPlayerMove(board, playerTile)
-                if move == 'quit':
-                    print('Thanks for playing!')
-                    sys.exit()
-                elif move == 'hints':
-                    #print('show hints')
-                    showHints = not showHints
-                    continue
-                else:
-                    makeMove(board, playerTile, move[0], move[1])
+                #input('Press Enter to see the player\'s move.')
+                move = getComputerMove(board, playerTile)
+                makeMove(board, playerTile, move[0], move[1])
             turn = 'computer'
         elif turn == 'computer':
             if computerValidMoves != []:
-                drawBoard(board)
-                printScore(board, playerTile, computerTile)
+                #drawBoard(board)
+                #printScore(board, playerTile, computerTile)
 
-                input('Press Enter to see the computer\'s move.')
+                #input('Press Enter to see the computer\'s move.')
                 move = getComputerMove(board, computerTile)
                 makeMove(board, computerTile, move[0], move[1])
             turn = 'player'
+        #time.sleep(1)
 
 
 

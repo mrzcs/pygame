@@ -185,7 +185,7 @@ def playGame(playerTile, computerTile):
             return board # No one can move, so end the game.
         elif turn == 'player':
             if playerValidMoves != []:
-                if showHints:
+                """ if showHints:
                     validMovesBoard = getBoardWithValidMoves(board, playerTile)
                     drawBoard(validMovesBoard)
                     #print('hint')
@@ -202,14 +202,16 @@ def playGame(playerTile, computerTile):
                     showHints = not showHints
                     continue
                 else:
-                    makeMove(board, playerTile, move[0], move[1])
+                    makeMove(board, playerTile, move[0], move[1]) """
+                move = getComputerMove(board, playerTile)
+                makeMove(board, playerTile, move[0], move[1])
             turn = 'computer'
         elif turn == 'computer':
             if computerValidMoves != []:
-                drawBoard(board)
+                """ drawBoard(board)
                 printScore(board, playerTile, computerTile)
 
-                input('Press Enter to see the computer\'s move.')
+                input('Press Enter to see the computer\'s move.') """
                 move = getComputerMove(board, computerTile)
                 makeMove(board, computerTile, move[0], move[1])
             turn = 'player'
@@ -218,7 +220,8 @@ def playGame(playerTile, computerTile):
 
 #main
 print('Welcome to Reversegam!')
-playerTile, computerTile = enterPlayerTile()
+#playerTile, computerTile = enterPlayerTile()
+playerTile, computerTile = ['X', 'O'] #enterPlayerTile()
 
 while True:
     finalBoard = playGame(playerTile, computerTile)
