@@ -86,8 +86,9 @@ def getPlayerMove(board, playerTile):
 def isOnCorner(x, y):
     return (x == 0 or x == WIDTH - 1) and (y == 0 or y == HEIGHT - 1)
 
-def getComputerMove(board, computerTile):
-    possibleMoves = getValidMoves(board, computerTile)
+#def getComputerMove(board, computerTile):
+def getCornerBestMove(board, tile):
+    possibleMoves = getValidMoves(board, tile)
     random.shuffle(possibleMoves)
 
     # Always go for a corner if available.
@@ -98,13 +99,49 @@ def getComputerMove(board, computerTile):
     bestScore = -1
     for x, y in possibleMoves:
         boardCopy = getBoardCopy(board)
-        makeMove(boardCopy, computerTile, x, y)
-        score = getScoreOfBoard(boardCopy)[computerTile]
+        makeMove(boardCopy, tile, x, y)
+        score = getScoreOfBoard(boardCopy)[tile]
         if score > bestScore:
             bestScore = score
             bestMove = [x, y]
 
     return bestMove
+
+def getWorstMove(board, tile):
+    possibleMoves = getValidMoves(board, tile)
+    random.shuffle(possibleMoves)
+
+    worstScore = 64
+    for x, y in possibleMoves:
+        boardCopy = getBoardCopy(board)
+        makeMove(boardCopy, tile, x, y)
+        score = getScoreOfBoard(boardCopy)[tile]
+        if score < worstScore:
+            worstMove = [x, y]
+            worstScore = score
+
+    return worstMove
+
+def getRandomMove(board, tile):
+    possibleMoves = getValidMoves(board, tile)
+    return random.choice(possibleMoves)
+
+def isOnSide(x, y):
+    return x == 0 or x == WIDTH - 1 or y == 0 or y == HEIGHT - 1
+
+def getCornerSideBestMove(board, tile):
+    possibleMoves = getValidMoves(board, tile)
+    random.shuffle(possibleMoves)
+
+    for x, y in possibleMoves:
+        if isOnCorner(x, y):
+            return [x, y]
+
+    for x, y in possibleMoves:
+        if isOnSide(x, y):
+            return [x, y]
+
+    return getCornerBestMove(board, tile)
 
 def makeMove(board, tile, xstart, ystart):
     # to place a tile on the board and flip the other tiles
@@ -182,7 +219,7 @@ def getBoardWithValidMoves(board, tile):
 def playGame(playerTile, computerTile):
     showHints = False
     turn = whoGoesFirst()
-    print('The %s will go first.' % (turn))
+    #print('The %s will go first.' % (turn))
 
     board = getNewBoard()
     board[3][3] = 'X'
@@ -199,7 +236,7 @@ def playGame(playerTile, computerTile):
             return board # No one can move, so end the game.
         elif turn == 'player':
             if playerValidMoves != []:
-                if showHints:
+                """ if showHints:
                     validMovesBoard = getBoardWithValidMoves(board, playerTile)
                     drawBoard(validMovesBoard)
                     #print('hint')
@@ -216,39 +253,50 @@ def playGame(playerTile, computerTile):
                     showHints = not showHints
                     continue
                 else:
-                    makeMove(board, playerTile, move[0], move[1])
+                    makeMove(board, playerTile, move[0], move[1]) """
+                move = getCornerBestMove(board, playerTile)
+                makeMove(board, playerTile, move[0], move[1])
             turn = 'computer'
         elif turn == 'computer':
             if computerValidMoves != []:
-                drawBoard(board)
+                """ drawBoard(board)
                 printScore(board, playerTile, computerTile)
 
-                input('Press Enter to see the computer\'s move.')
-                move = getComputerMove(board, computerTile)
+                input('Press Enter to see the computer\'s move.') """
+                move = getCornerSideBestMove(board, computerTile)
                 makeMove(board, computerTile, move[0], move[1])
             turn = 'player'
 
-
-
 #main
+NUM_GAMES = 100
+xWins = oWins = ties = 0
 print('Welcome to Reversegam!')
-playerTile, computerTile = enterPlayerTile()
+#playerTile, computerTile = enterPlayerTile()
+playerTile, computerTile = ['X', 'O']
 
-while True:
+#while True:
+for i in range(NUM_GAMES):
     finalBoard = playGame(playerTile, computerTile)
 
     # Display the final score.
-    drawBoard(finalBoard)
+    #drawBoard(finalBoard)
     scores = getScoreOfBoard(finalBoard)
-    print('X scored %s points. O scored %s points! Congras!' % (scores['X'], scores['O']))
+    print('#%s:X scored %s points. O scored %s points.' % (i + 1, scores['X'], scores['O']))
 
     if scores[playerTile] > scores[computerTile]:
-        print('You beat the computer by %s points!' % (scores[playerTile] - scores[computerTile]))
+        xWins += 1
+        #print('You beat the computer by %s points!' % (scores[playerTile] - scores[computerTile]))
     elif scores[playerTile] < scores[computerTile]:
-        print('You lost. The computer beat you by %s points!' % (scores[computerTile] - scores[playerTile]))
+        oWins += 1
+        #print('You lost. The computer beat you by %s points!' % (scores[computerTile] - scores[playerTile]))
     else:
-        print('The game was a tie!')
+        ties += 1
+        #print('The game was a tie!')
 
-    print('Do you want to play again?(yes or no)')
+    """ print('Do you want to play again?(yes or no)')
     if not input().lower().startswith('y'):
-        break
+        break """
+
+print('X wins: %s (%s%%)' % (xWins, round(xWins / NUM_GAMES * 100, 1)))
+print('O wins: %s (%s%%)' % (oWins, round(oWins / NUM_GAMES * 100, 1)))
+print('Ties: %s (%s%%)' % (ties, round(ties / NUM_GAMES * 100, 1)))

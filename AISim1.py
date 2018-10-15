@@ -15,6 +15,7 @@ def enterPlayerTile():
         return ['X', 'O']
     else:
         return ['O', 'X']
+
 def whoGoesFirst():
     if random.randint(0, 1) == 0:
         return 'computer'
@@ -24,7 +25,7 @@ def whoGoesFirst():
 def getNewBoard():
     board = []
     for i in range(WIDTH):
-        board.append([' ']*8)
+        board.append([' '] * WIDTH)
         #board.append([' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '])
     return board
 
@@ -82,13 +83,16 @@ def getPlayerMove(board, playerTile):
             print('That is not a valid move. Enter the column (1-8) and then the row (1-8).')
     return x, y
 
+def isOnCorner(x, y):
+    return (x == 0 or x == WIDTH - 1) and (y == 0 or y == HEIGHT - 1)
+
 def getComputerMove(board, computerTile):
     possibleMoves = getValidMoves(board, computerTile)
     random.shuffle(possibleMoves)
 
     # Always go for a corner if available.
     for x, y in possibleMoves:
-        if isOnBoard(x, y):
+        if isOnCorner(x, y):
             return [x, y]
     # Find the highest-scoring move possible.
     bestScore = -1
@@ -103,6 +107,7 @@ def getComputerMove(board, computerTile):
     return bestMove
 
 def makeMove(board, tile, xstart, ystart):
+    # to place a tile on the board and flip the other tiles
     tilesToFlip = isValidMove(board, tile, xstart, ystart)
 
     if tilesToFlip == False:
@@ -113,44 +118,49 @@ def makeMove(board, tile, xstart, ystart):
     return True
 
 def isOnBoard(x, y):
+    # Return True if the coordinates are located on the board.(0-7)
     return x >= 0 and x <= WIDTH -1 and y >=0 and y<= HEIGHT -1
 
 def isValidMove(board, tile, xstart, ystart):
+    # Return False if the player's move on space xstart, ystart is invalid.
     if board[xstart][ystart] != ' ' or not isOnBoard(xstart, ystart):
         return False
-
+    # If it is a valid move, return a list of spaces that would become the player's if they made a move here.
+    # for a move to be valid, it must be both on the board and next to one of the other player’s tiles
     if tile == 'X':
         otherTile = 'O'
     else:
         otherTile = 'X'
 
-    tilesToFlip = []
+    tilesToFlip = [] # contain the coordinates of all opponent’s tiles that would be flipped
     coord = [[0, 1], [1, 1], [1, 0], [1, -1],
-            [0, -1], [-1, -1], [-1, 0], [-1, 1]]
+            [0, -1], [-1, -1], [-1, 0], [-1, 1]] # eight directions to check
     #for xdir, ydir in [[0, 1], [1, 1], [1, 0], [1, -1], [0, -1], [-1, -1], [-1, 0], [-1, 1]]:
     for xdir, ydir in coord:
         x, y = xstart, ystart
-        x += xdir
-        y += ydir
-        while isOnBoard(x, y) and board[x][y] == otherTile:
+        x += xdir # First step in the x direction
+        y += ydir # First step in the y direction
+        while isOnBoard(x, y) and board[x][y] == otherTile: # mark the start of sandwich
             # Keep moving in this x & y direction.
             x += xdir
             y += ydir
-            if isOnBoard(x, y) and board[x][y] == tile:
-
+            if isOnBoard(x, y) and board[x][y] == tile: # mark the end of the sandwich made by the player’s tiles surrounding the opponent’s tiles
                 while True:
                     x -= xdir
                     y -= ydir
                     if x == xstart and y == ystart:
                         break
-                    tilesToFlip.append([x, y])
-    if len(tilesToFlip) == 0:
+                    tilesToFlip.append([x, y]) # record the coordinates of all of the opponent’s tiles that should be flipped
+    if len(tilesToFlip) == 0: # none of the eight directions ended up flipping at least one of the opponent’s tiles, not a valid move
         return False
 
     return tilesToFlip
 
 
 def getValidMoves(board, tile):
+    """
+        return: a list of two-item lists which hold the coordinates for all valid moves
+    """
     validMoves = []
     for x in range(WIDTH):
         for y in range(HEIGHT):
@@ -159,10 +169,14 @@ def getValidMoves(board, tile):
     return validMoves
 
 def getBoardWithValidMoves(board, tile):
+    """
+        purpose: displays a board with all possible moves marked on it as hints
+        return: a game board data structure that has periods (.) for all spaces that are valid moves:
+    """
     boardCopy = getBoardCopy(board)
 
     for x, y in getValidMoves(boardCopy, tile):
-        boardCopy[x][y] = '-'
+        boardCopy[x][y] = '.'
     return boardCopy
 
 def playGame(playerTile, computerTile):
@@ -216,12 +230,10 @@ def playGame(playerTile, computerTile):
                 makeMove(board, computerTile, move[0], move[1])
             turn = 'player'
 
-
-
 #main
 print('Welcome to Reversegam!')
 #playerTile, computerTile = enterPlayerTile()
-playerTile, computerTile = ['X', 'O'] #enterPlayerTile()
+playerTile, computerTile = ['X', 'O']
 
 while True:
     finalBoard = playGame(playerTile, computerTile)
